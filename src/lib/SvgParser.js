@@ -198,7 +198,7 @@ const parser = {
           }
           else if (def.type === 'gradient') {
 
-            const resourceId = def.id + 'gradient';
+            const resourceId = data.id + '-gradient';
 
             const linearGradient = svgElement('linearGradient');
             linearGradient.setAttributeNS(null, 'id', resourceId);
