@@ -158,8 +158,19 @@ const parser = {
 
     el.setAttributeNS(null, 'style', await parser.style(data, el))
     container.appendChild(el)
+
+    let transform = "";
+
     if (data.transform) {
-      el.setAttributeNS(null, 'transform', `translate(${data.transform.tx} ${data.transform.ty})`)
+      transform += `translate(${data.transform.tx} ${data.transform.ty}) `;
+    }
+
+    if (data.meta?.ux?.rotation) {
+      transform += `rotate(${data.meta.ux.rotation}) `;
+    }
+
+    if (transform) {
+      el.setAttributeNS(null, 'transform', transform.trim())
     }
   },
 
