@@ -8,10 +8,11 @@
 
   let entries = {}, artboards = {}, status = '', clickedElement = null;
 
-  async function loadZip(event) {
+  // Load a sample while developing
+  loadSample("sp");
 
+  async function loadEntries(entries) {
     try {
-      entries = await unzip(event.target.files[0])
       Parser.entries = entries;
       console.log({entries});
 
@@ -23,6 +24,28 @@
       })
       console.log({artboards});
 
+    } catch (e) {
+      console.log(e);
+      alert('Invalid XD file. Should be a zip with some files.')
+    }
+  }
+
+  async function loadSample(sample) {
+    try {
+      entries = await unzip(`http://localhost:3000/samples/${sample}.xd`, false);
+      await loadEntries(entries);
+      loadArtboard(Object.values(artboards)[0].id);
+    } catch (e) {
+      console.log(e);
+      alert('Invalid XD file. Should be a zip with some files.')
+    }
+
+  }
+
+  async function loadZip(event) {
+    try {
+      entries = await unzip(event.target.files[0])
+      loadEntries(entries);
     } catch {
       alert('Invalid XD file. Should be a zip with some files.')
     }
