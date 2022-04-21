@@ -21,6 +21,19 @@ const parser = {
     parser.svg.appendChild(parser.defs);
     parser.children(data.children, parser.svg);
   },
+
+  children: (children, container) => {
+    if (!children) return;
+    children.forEach(child => {
+      if (parser[child.type]) {
+        parser[child.type](child, container);
+      } else {
+        console.log(`Unhandled type: ${child.type}`);
+      }
+    })
+  },
+
+
   artboard: async (data, container) => {
     const el = svgElement('g', data)
     el.setAttributeNS(null, 'id', data.id)
@@ -59,19 +72,23 @@ const parser = {
     }
     el.setAttributeNS(null, 'style', await parser.style(data, el))
 
-    if (data.text.paragraphs) {
-      data.text.paragraphs.forEach(p => {
-        p.lines.forEach(async (l) => {
-          const tspan = svgElement('tspan', data)
-          tspan.setAttributeNS(null, 'x', l[0].x);
-          tspan.setAttributeNS(null, 'y', l[0].y);
-          tspan.appendChild(document.createTextNode(data.text.rawText.substr(l[0].from, l[0].to - l[0].from)))
-          tspan.setAttributeNS(null, 'style', await parser.style(l[0], el))
-          el.appendChild(tspan)
+    if (data.text) {
+      if (data.text.paragraphs) {
+        data.text.paragraphs.forEach(p => {
+          p.lines.forEach(async (l) => {
+            const tspan = svgElement('tspan', data)
+            tspan.setAttributeNS(null, 'x', l[0].x);
+            tspan.setAttributeNS(null, 'y', l[0].y);
+            tspan.appendChild(document.createTextNode(data.text.rawText.substr(l[0].from, l[0].to - l[0].from)))
+            tspan.setAttributeNS(null, 'style', await parser.style(l[0], el))
+            el.appendChild(tspan)
+          })
         })
-      })
+      } else {
+        el.appendChild(document.createTextNode(data.text.rawText))
+      }
     } else {
-      el.appendChild(document.createTextNode(data.text.rawText))
+      console.log("No data.text for text()", data);
     }
 
     container.appendChild(el)
@@ -83,7 +100,7 @@ const parser = {
 
     let el = svgElement(shape.type, data)
     el.setAttributeNS(null, 'id', data.id)
-    el.setAttributeNS(null, 'class', 'shape');
+    el.setAttributeNS(null, 'class', 'shape shape-' + shape.type);
 
     switch (shape.type) {
       case 'rect':
@@ -119,6 +136,13 @@ const parser = {
         el.setAttributeNS(null, 'cy', shape.cy);
         el.setAttributeNS(null, 'r', shape.r);
         break;
+      case 'ellipse':
+        el.setAttributeNS(null, 'id', shape.id)
+        el.setAttributeNS(null, 'cx', shape.cx);
+        el.setAttributeNS(null, 'cy', shape.cy);
+        el.setAttributeNS(null, 'rx', shape.rx);
+        el.setAttributeNS(null, 'ry', shape.ry);
+        break;
       case 'path':
         el.setAttributeNS(null, 'd', shape.path)
         break;
@@ -137,16 +161,6 @@ const parser = {
     if (data.transform) {
       el.setAttributeNS(null, 'transform', `translate(${data.transform.tx} ${data.transform.ty})`)
     }
-  },
-  children: (children, container) => {
-    if (!children) return;
-    children.forEach(child => {
-      if (parser[child.type]) {
-        parser[child.type](child, container);
-      } else {
-        console.log(`Unhandled type: ${child.type}`);
-      }
-    })
   },
 
   style: async (data, el) => {
@@ -222,7 +236,7 @@ const parser = {
           style += 'opacity: ' + def + ';';
           break;
         default:
-          console.log(`Unkown style.${attr}`);
+          console.log(`Unkown style.${attr}`, def);
       }
     }
 
