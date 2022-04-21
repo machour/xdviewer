@@ -79,7 +79,11 @@ const parser = {
             const tspan = svgElement('tspan', data)
             tspan.setAttributeNS(null, 'x', l[0].x);
             tspan.setAttributeNS(null, 'y', l[0].y);
-            tspan.appendChild(document.createTextNode(data.text.rawText.substr(l[0].from, l[0].to - l[0].from)))
+            let buffer = "";
+            l.forEach(async(chunk) => {
+              buffer += data.text.rawText.substr(chunk.from, chunk.to - chunk.from);
+            })
+            tspan.appendChild(document.createTextNode(buffer))
             tspan.setAttributeNS(null, 'style', await parser.style(l[0], el))
             el.appendChild(tspan)
           })
