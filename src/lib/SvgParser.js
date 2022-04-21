@@ -256,6 +256,14 @@ const parser = {
       el.setAttributeNS(null, 'clip-path', `url(#${resourceId})`)
     }
 
+    // TODO: handle more stuff here, and probably merge with the above style
+    if (data.meta?.ux?.rangedStyles) {
+      const rs = data.meta.ux.rangedStyles;
+      if (rs[0].textTransform) {
+        style += "text-transform:" + rs[0].textTransform + ";";
+      }
+    }
+
     if (data.style.filters && data.style.filters[0] && data.style.filters[0].visible === false) {
       //style += 'display:none;';
     }
